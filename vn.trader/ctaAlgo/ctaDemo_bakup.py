@@ -18,22 +18,9 @@ from ctaTemplate import CtaTemplate
 
 ########################################################################
 class CAAlpha(CtaTemplate):
-    """CAAlpha策略Demo"""
-    """
-    基于tick级别粒度生成变长K线range bar，思路如下：
-    1 - 大趋势：识别市场状态（单边/震荡）
-    2 - 变长range bar: 
-        变长bar固定O-C价格差（非H-L价格差），带单影线的K线，O或者C等于H或L，且影线不产生新一根bar（双方向还可以不一致，具体需要研究变长bar生成策略）
-        单边 短，震荡 长：这样单边情况下生成的bar数量更多，震荡下少，bar越多则交易机会越多
-        为了一致性，整点时间时产生自然截断，生成新的bar
-    3 - 交易算法
-
-    00- PCNN识别趋势状态，识别bar长度
-        买卖信号
-        日内交易策略
-    """
-    className = 'CAAlpha'
-    author = u'by-hurenqiang'
+    """双指数均线策略Demo"""
+    className = 'DoubleEmaDemo'
+    author = u'用Python的交易员'
     
     # 策略参数
     fastK = 0.9     # 快速EMA参数

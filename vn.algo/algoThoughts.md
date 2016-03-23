@@ -11,7 +11,10 @@ from: vn.py群 印钞机
     2 - 变长range bar: 
         变长bar固定O-C价格差（非H-L价格差），带单影线的K线，O或者C等于H或L，且影线不产生新一根bar（双方向还可以不一致，具体需要研究变长bar生成策略）
         单边 短，震荡 长：这样单边情况下生成的bar数量更多，震荡下少，bar越多则交易机会越多
+        转折数量越少说明趋势越明显，这样的品种越应该考虑
         为了一致性，整点时间时产生自然截断，生成新的bar
+
+        以上两者互相影响：趋势影响bar长度，bar长度影响bar的数量进而影响趋势的识别策略
     3 - 交易算法
 
     00- PCNN识别趋势状态，识别bar长度
@@ -32,8 +35,49 @@ from 优矿
               2 是否有足够高的收益覆盖成本
               3 建仓多少才能够有足够的收益
 
-< 小知识 > 
+< 小知识 >  数据处理基本方法 
 from 优矿
     去极值化 winsorize：根据样本计算平均值和标准差, 平均值±3标准差意外的数据取边界值，如：市值等可以考虑，消除极值因子的影响
     中性化  neutralize：对于不同行业的股票，其PE基准值可能不一样，无法直接比较，中性化处理后可以进行比较
     标准化  standardize：(因子值 - 因子均值)/因子标准差, 这样不同因子之间才可进行比较分析或者加权计算
+
+< 小知识 >  量化投资基本流派
+
+< 思考 > 海龟交易法则
+
+< 小知识 > 凯利公式
+    资金大了之后的有效管理方式
+    f = (pb - q)/b  p: 胜率  q: 败率  b: 净赢率(loss为1情况下的简要计算值)
+    f = p - q/(w/l) w: win净盈率  l: loss净损率  或者 简单计算为 f = p -q/r   其中 r = w/l 即赔率
+    f: 仓位比例
+
+< 熔断超跌错杀股的一种判断方式 >
+    第一次熔断为红盘，第二次熔断时杀跌
+    首次熔断前小跌，第二次熔断杀跌
+    首次熔断后杀跌，但有明显拉升，且第二次熔断后价格竟然高与第一次熔断价格
+
+< 技术指标 >
+    MA: sum(price[0:N])/N
+    ATR: 真实波动幅度
+        TR  = max(high - low, high - lastClose, lastClose - low)
+        stdTR = tr / close
+        ATR = average(TR[0:N])
+        stdATR= average(stdTR[0:N])
+    AMA:
+    MACD:
+    KDJ:
+    RSI:
+    zigzag:
+    itrend:
+        price = (high + low)/2.0;
+        if (bars.len() < 7){
+            // 初始Trend的计算
+            if (bars.len() >= 3){
+                trend = (price + 2*price[1] + price[2])/4;
+            }
+        }else{
+            trend = (alpha - alpha*alpha/4)*price + 0.5*alpha*alpha*price[1] -
+                    (alpha-0.75*alpha*alpha)*price[2]
+                    + 2*(1-alpha)*trend[1] - 
+                    (1-alpha)*(1-alpha)*trend[2]
+        }

@@ -19,6 +19,9 @@ from ctaTemplate import CtaTemplate
 ########################################################################
 class CAAlpha(CtaTemplate):
     """CAAlpha策略Demo"""
+    '''
+    测试策略: 追涨杀跌
+    '''
     """
     基于tick级别粒度生成变长K线range bar，思路如下：
     1 - 大趋势：识别市场状态（单边/震荡）
@@ -36,21 +39,11 @@ class CAAlpha(CtaTemplate):
     author = u'by-hurenqiang'
     
     # 策略参数
-    fastK = 0.9     # 快速EMA参数
-    slowK = 0.1     # 慢速EMA参数
     initDays = 10   # 初始化数据所用的天数
     
     # 策略变量
     bar = None
     barMinute = EMPTY_STRING
-    
-    fastMa = []             # 快速EMA均线数组
-    fastMa0 = EMPTY_FLOAT   # 当前最新的快速EMA
-    fastMa1 = EMPTY_FLOAT   # 上一根的快速EMA
-
-    slowMa = []             # 与上面相同
-    slowMa0 = EMPTY_FLOAT
-    slowMa1 = EMPTY_FLOAT
     
     # 参数列表，保存了参数的名称
     paramList = ['name',
@@ -72,7 +65,8 @@ class CAAlpha(CtaTemplate):
     #----------------------------------------------------------------------
     def __init__(self, ctaEngine, setting):
         """Constructor"""
-        super(DoubleEmaDemo, self).__init__(ctaEngine, setting)
+        super(CAAlpha, self).__init__(ctaEngine, setting)
+        self.ticks = [] # 存储tick级别的数据
         
     #----------------------------------------------------------------------
     def onInit(self):
@@ -101,84 +95,32 @@ class CAAlpha(CtaTemplate):
     def onTick(self, tick):
         """收到行情TICK推送（必须由用户继承实现）"""
         # 计算K线
-        tickMinute = tick.datetime.minute
-        
-        if tickMinute != self.barMinute:    
-            if self.bar:
-                self.onBar(self.bar)
-            
-            bar = CtaBarData()              
-            bar.vtSymbol = tick.vtSymbol
-            bar.symbol = tick.symbol
-            bar.exchange = tick.exchange
-            
-            bar.open = tick.lastPrice
-            bar.high = tick.lastPrice
-            bar.low = tick.lastPrice
-            bar.close = tick.lastPrice
-            
-            bar.date = tick.date
-            bar.time = tick.time
-            bar.datetime = tick.datetime    # K线的时间设为第一个Tick的时间
-            
-            # 实盘中用不到的数据可以选择不算，从而加快速度
-            #bar.volume = tick.volume
-            #bar.openInterest = tick.openInterest
-            
-            self.bar = bar                  # 这种写法为了减少一层访问，加快速度
-            self.barMinute = tickMinute     # 更新当前的分钟
-            
-        else:                               # 否则继续累加新的K线
-            bar = self.bar                  # 写法同样为了加快速度
-            
-            bar.high = max(bar.high, tick.lastPrice)
-            bar.low = min(bar.low, tick.lastPrice)
-            bar.close = tick.lastPrice
-        
-    #----------------------------------------------------------------------
-    def onBar(self, bar):
-        """收到Bar推送（必须由用户继承实现）"""
-        # 计算快慢均线
-        if not self.fastMa0:        
-            self.fastMa0 = bar.close
-            self.fastMa.append(self.fastMa0)
-        else:
-            self.fastMa1 = self.fastMa0
-            self.fastMa0 = bar.close * self.fastK + self.fastMa0 * (1 - self.fastK)
-            self.fastMa.append(self.fastMa0)
-            
-        if not self.slowMa0:
-            self.slowMa0 = bar.close
-            self.slowMa.append(self.slowMa0)
-        else:
-            self.slowMa1 = self.slowMa0
-            self.slowMa0 = bar.close * self.slowK + self.slowMa0 * (1 - self.slowK)
-            self.slowMa.append(self.slowMa0)
-            
-        # 判断买卖
-        crossOver = self.fastMa0>self.slowMa0 and self.fastMa1<self.slowMa1     # 金叉上穿
-        crossBelow = self.fastMa0<self.slowMa0 and self.fastMa1>self.slowMa1    # 死叉下穿
-        
-        # 金叉和死叉的条件是互斥
-        # 所有的委托均以K线收盘价委托（这里有一个实盘中无法成交的风险，考虑添加对模拟市价单类型的支持）
+        self.ticks.insert(0, tick)
+        # 只使用最新的数据
+        if len(self.ticks) > 20:
+            self.ticks = self.ticks[:20]
+
+        '''
         if crossOver:
-            # 如果金叉时手头没有持仓，则直接做多
             if self.pos == 0:
                 self.buy(bar.close, 1)
-            # 如果有空头持仓，则先平空，再做多
             elif self.pos < 0:
                 self.cover(bar.close, 1)
                 self.buy(bar.close, 1)
-        # 死叉和金叉相反
         elif crossBelow:
             if self.pos == 0:
                 self.short(bar.close, 1)
             elif self.pos > 0:
                 self.sell(bar.close, 1)
                 self.short(bar.close, 1)
-                
+        '''
         # 发出状态更新事件
         self.putEvent()
+        
+    #----------------------------------------------------------------------
+    def onBar(self, bar):
+        """收到Bar推送（必须由用户继承实现）"""
+        pass
         
     #----------------------------------------------------------------------
     def onOrder(self, order):

@@ -505,7 +505,7 @@ if __name__ == '__main__':
     engine.loadHistoryData(MINUTE_DB_NAME, 'IF0000')
     
     # 在引擎中创建策略对象
-    engine.initStrategy(DoubleEmaDemo, {})
+    engine.initStrategy(CAAlpha, {})
     
     # 开始跑回测
     engine.runBacktesting()

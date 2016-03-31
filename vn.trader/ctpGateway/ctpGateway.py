@@ -250,6 +250,8 @@ class CtpMdApi(MdApi):
         err.errorID = error['ErrorID']
         err.errorMsg = error['ErrorMsg'].decode('gbk')
         self.gateway.onError(err)
+        print "错误回报Error", err.errorID, err.errorMsg
+        self.gateway.onError(err)
         
     #----------------------------------------------------------------------
     def onRspUserLogin(self, data, error, n, last):
@@ -274,6 +276,7 @@ class CtpMdApi(MdApi):
             err.gatewayName = self.gatewayName
             err.errorID = error['ErrorID']
             err.errorMsg = error['ErrorMsg'].decode('gbk')
+            print "登录回报Error", err.errorID, err.errorMsg
             self.gateway.onError(err)
                 
     #---------------------------------------------------------------------- 
@@ -498,6 +501,8 @@ class CtpTdApi(TdApi):
             err.gatewayName = self.gateway
             err.errorID = error['ErrorID']
             err.errorMsg = error['ErrorMsg'].decode('gbk')
+            self.gateway.onError(err)
+            print u"td登录回报Error", err.errorID, err.errorMsg
             self.gateway.onError(err)
     
     #----------------------------------------------------------------------

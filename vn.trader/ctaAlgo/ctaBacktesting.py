@@ -499,7 +499,7 @@ if __name__ == '__main__':
     engine.setSlippage(0.2)     # 股指1跳
     
     # 设置回测用的数据起始日期
-    engine.setStartDate('20100416')
+    engine.setStartDate('20140416')
     
     # 载入历史数据到引擎中
     engine.loadHistoryData(MINUTE_DB_NAME, 'IF0000')

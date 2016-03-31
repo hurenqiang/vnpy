@@ -67,6 +67,7 @@ class CAAlpha(CtaTemplate):
         """Constructor"""
         super(CAAlpha, self).__init__(ctaEngine, setting)
         self.ticks = [] # 存储tick级别的数据
+        self.bars = []
         
     #----------------------------------------------------------------------
     def onInit(self):
@@ -120,6 +121,40 @@ class CAAlpha(CtaTemplate):
     #----------------------------------------------------------------------
     def onBar(self, bar):
         """收到Bar推送（必须由用户继承实现）"""
+        self.bars.insert(0, bar)
+        if len(self.bars) > 100:
+            self.bars = self.bars[0:100]
+            
+        ma5 = 0
+        if len(self.bars) < 100:
+            return
+        for data in self.bars[0:30]:
+            ma5 += data.close
+        
+        ma10 = 0
+        for data in self.bars[0:60]:
+            ma10 += data.close
+            
+        ma5 = ma5/30
+        ma10= ma10/60
+        crossOver = False
+        crossBelow = False
+        if ma5 > ma10:
+            crossOver = True
+        else:
+            crossBelow = True
+        if crossOver:
+            if self.pos == 0:
+                self.buy(bar.close, 1)
+            elif self.pos < 0:
+                self.cover(bar.close, 1)
+                self.buy(bar.close, 1)
+        elif crossBelow:
+            if self.pos == 0:
+                self.short(bar.close, 1)
+            elif self.pos > 0:
+                self.sell(bar.close, 1)
+                self.short(bar.close, 1)
         pass
         
     #----------------------------------------------------------------------

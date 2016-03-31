@@ -9,7 +9,6 @@ from uiMainWindow import *
 #----------------------------------------------------------------------
 def main():
     """主程序入口"""
-    print "hello world"
     # 设置底部任务栏图标，win7以下请注释掉
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('vn.py demo')  
     

@@ -47,7 +47,7 @@ class MainEngine(object):
             self.gatewayDict['CTP'].setQryEnabled(True)
         except Exception, e:
             print e
-        '''
+        
         try:
             from ltsGateway.ltsGateway import LtsGateway
             self.addGateway(LtsGateway, 'LTS')
@@ -68,7 +68,14 @@ class MainEngine(object):
             self.gatewayDict['FEMAS'].setQryEnabled(True)
         except Exception, e:
             print e  
-            
+        
+        try:
+            from xspeedGateway.xspeedGateway import XspeedGateway
+            self.addGateway(XspeedGateway, 'XSPEED')
+            self.gatewayDict['XSPEED'].setQryEnabled(True)
+        except Exception, e:
+            print e          
+        
         try:
             from ksgoldGateway.ksgoldGateway import KsgoldGateway
             self.addGateway(KsgoldGateway, 'KSGOLD')
@@ -101,7 +108,6 @@ class MainEngine(object):
             self.gatewayDict['OANDA'].setQryEnabled(True)
         except Exception, e:
             print e
-        '''
 
     #----------------------------------------------------------------------
     def addGateway(self, gateway, gatewayName=None):
